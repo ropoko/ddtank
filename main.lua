@@ -2,7 +2,9 @@ local PLAYER = {
 	x = 500,
 	y = 500,
 	width = 25,
-	height = 25
+	height = 25,
+	dash_interval = 2, -- seconds
+	last_dash = 0
 }
 
 local ENEMY = {
@@ -13,10 +15,13 @@ local ENEMY = {
 
 local function dash(direction, signal)
 	if love.keyboard.isDown('space') then
-		if signal == '-' then
-			PLAYER[direction] = PLAYER[direction] - 3
-		else
-			PLAYER[direction] = PLAYER[direction] + 3
+		if (os.time() - PLAYER.last_dash) > PLAYER.dash_interval then
+			PLAYER.last_dash = os.time()
+			if signal == '-' then
+				PLAYER[direction] = PLAYER[direction] - 5
+			else
+				PLAYER[direction] = PLAYER[direction] + 5
+			end
 		end
 	end
 end
