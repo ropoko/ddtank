@@ -8,9 +8,10 @@ local PLAYER = {
 }
 
 local ENEMY = {
-	count = 100,
+	count = 20,
 	alive = 0,
-	size = 15
+	size = 10,
+	all = {}
 }
 
 local function dash(direction, signal)
@@ -61,11 +62,29 @@ local function move_player()
 end
 
 function love.update()
+	-- generate enemies
+	if ENEMY.alive <= ENEMY.count then
+		for i=1, ENEMY.count - ENEMY.alive do
+			ENEMY.alive = ENEMY.alive + 1
+
+			local x = love.math.random(0, 800)
+			local y = love.math.random(0, 600)
+
+			-- local color = Utils.random_color()
+
+			table.insert(ENEMY.all, { x = x, y = y })
+		end
+	end
+
 	if love.keyboard.isDown('w', 'a', 's', 'd') then
 		move_player()
 	end
 end
 
 function love.draw()
+	for k,v in pairs(ENEMY.all) do
+		love.graphics.ellipse('fill', v.x, v.y, ENEMY.size, ENEMY.size)
+	end
+
 	love.graphics.rectangle('fill', PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height)
 end
