@@ -88,38 +88,36 @@ function love.update(dt)
 	local speed = 0.4
 
 	for i = 1, #ENEMY.all - 1 do
-		local current = { x = ENEMY.all[i].x, y = ENEMY.all[i].y }
+		local x_distance = ENEMY.all[i].x - PLAYER.x
+		local y_distance = ENEMY.all[i].y - PLAYER.y
 
-		for j=i+1, #ENEMY.all do
-			local next = { x = ENEMY.all[j].x, y = ENEMY.all[j].y }
+		local distance = math.sqrt(x_distance^2 + y_distance^2)
 
-			local x_distance = current.x - PLAYER.x
-			local y_distance = current.y - PLAYER.y
+		ENEMY.all[i].x = ENEMY.all[i].x - x_distance / distance * speed
+		ENEMY.all[i].y = ENEMY.all[i].y - y_distance / distance * speed
 
-			local distance = math.sqrt(x_distance^2 + y_distance^2)
+		-- for j=i+1, #ENEMY.all do
+		-- 	local next = { x = ENEMY.all[j].x, y = ENEMY.all[j].y }
 
-			current.x = current.x - x_distance / distance * speed
-			current.y = current.y - y_distance / distance * speed
+		-- 	if has_collision(current.x, current.y, ENEMY.size, ENEMY.size,
+		-- 		next.x, next.y, ENEMY.size, ENEMY.size) then
+		-- 		if current.x <= next.x then
+		-- 			current.x = current.x + ENEMY.size
+		-- 		end
 
-			if has_collision(current.x, current.y, ENEMY.size, ENEMY.size,
-				next.x, next.y, ENEMY.size, ENEMY.size) then
-				if current.x <= next.x then
-					current.x = current.x + ENEMY.size
-				end
+		-- 		if current.x >= next.x then
+		-- 			current.x = current.x - ENEMY.size
+		-- 		end
 
-				if current.x >= next.x then
-					current.x = current.x - ENEMY.size
-				end
+		-- 		if current.y <= next.y then
+		-- 			current.y = current.y - ENEMY.size
+		-- 		end
 
-				if current.y <= next.y then
-					current.y = current.y - ENEMY.size
-				end
-
-				if current.y >= next.y then
-					current.y = current.y + ENEMY.size
-				end
-			end
-		end
+		-- 		if current.y >= next.y then
+		-- 			current.y = current.y + ENEMY.size
+		-- 		end
+		-- 	end
+		-- end
 	end
 
 	if love.keyboard.isDown('w', 'a', 's', 'd') then
