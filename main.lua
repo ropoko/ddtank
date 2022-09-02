@@ -8,7 +8,7 @@ local PLAYER = {
 }
 
 local ENEMY = {
-	count = 20,
+	count = 2,
 	alive = 0,
 	size = 10,
 	all = {}
@@ -72,6 +72,22 @@ local function move_player()
 	dash(last_movement.direction, last_movement.signal)
 end
 
+local function get_short_distance(enemy_x, player_x, enemy_y, player_y)
+	local minor_x = math.min(
+		enemy_x - player_x,
+		(enemy_x - (player_x + PLAYER.width)),
+		(enemy_x - (player_x - PLAYER.width))
+	)
+
+	local minor_y = math.min(
+		enemy_y - player_y,
+		(enemy_y - (player_y + PLAYER.height)),
+		(enemy_y - (player_y - PLAYER.height))
+	)
+
+	return minor_x, minor_y
+end
+
 function love.update(dt)
 	-- generate enemies
 	if ENEMY.alive <= ENEMY.count then
@@ -87,37 +103,34 @@ function love.update(dt)
 
 	local speed = 0.4
 
-	for i = 1, #ENEMY.all - 1 do
-		local x_distance = ENEMY.all[i].x - PLAYER.x
-		local y_distance = ENEMY.all[i].y - PLAYER.y
+	for i = 1, #ENEMY.all do
+		local x_distance, y_distance = get_short_distance(ENEMY.all[i].x, PLAYER.x, ENEMY.all[i].y, PLAYER.y)
 
 		local distance = math.sqrt(x_distance^2 + y_distance^2)
 
 		ENEMY.all[i].x = ENEMY.all[i].x - x_distance / distance * speed
 		ENEMY.all[i].y = ENEMY.all[i].y - y_distance / distance * speed
 
-		-- for j=i+1, #ENEMY.all do
-		-- 	local next = { x = ENEMY.all[j].x, y = ENEMY.all[j].y }
+		for j=i+1, #ENEMY.all do
+			if has_collision(ENEMY.all[i].x, ENEMY.all[i].y, ENEMY.size, ENEMY.size,
+				ENEMY.all[j].x, ENEMY.all[j].y, ENEMY.size, ENEMY.size) then
+				if ENEMY.all[i].x <= ENEMY.all[j].x then
+					ENEMY.all[j].x = ENEMY.all[j].x + ENEMY.size
+				end
 
-		-- 	if has_collision(current.x, current.y, ENEMY.size, ENEMY.size,
-		-- 		next.x, next.y, ENEMY.size, ENEMY.size) then
-		-- 		if current.x <= next.x then
-		-- 			current.x = current.x + ENEMY.size
-		-- 		end
+				if ENEMY.all[i].x >= ENEMY.all[j].x then
+					ENEMY.all[j].x = ENEMY.all[j].x - ENEMY.size
+				end
 
-		-- 		if current.x >= next.x then
-		-- 			current.x = current.x - ENEMY.size
-		-- 		end
+				if ENEMY.all[i].y <= ENEMY.all[j].y then
+					ENEMY.all[j].y = ENEMY.all[j].y - ENEMY.size
+				end
 
-		-- 		if current.y <= next.y then
-		-- 			current.y = current.y - ENEMY.size
-		-- 		end
-
-		-- 		if current.y >= next.y then
-		-- 			current.y = current.y + ENEMY.size
-		-- 		end
-		-- 	end
-		-- end
+				if ENEMY.all[i].y >= ENEMY.all[j].y then
+					ENEMY.all[j].y = ENEMY.all[j].y + ENEMY.size
+				end
+			end
+		end
 	end
 
 	if love.keyboard.isDown('w', 'a', 's', 'd') then
