@@ -64,7 +64,7 @@ local function mov_shot()
 		local aim_x = PLAYER.shoots[i].aim_x
 		local aim_y = PLAYER.shoots[i].aim_y
 
-		if (PLAYER.shoots[i].x <= aim_x and PLAYER.shoots[i].y <= aim_y) then
+		if (math.floor(PLAYER.shoots[i].x) <= aim_x and math.floor(PLAYER.shoots[i].y) <= aim_y) then
 			table.remove(PLAYER.shoots, i)
 		else
 			local distance = math.sqrt((PLAYER.shoots[i].x - aim_x)^2 + (PLAYER.shoots[i].y - aim_y)^2)
