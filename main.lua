@@ -8,7 +8,7 @@ local PLAYER = {
 }
 
 local ENEMY = {
-	count = 2,
+	count = 1,
 	alive = 0,
 	size = 10,
 	all = {}
@@ -72,16 +72,16 @@ local function move_player()
 	dash(last_movement.direction, last_movement.signal)
 end
 
+-- fix: enemy should be able to follow one of the four boundaries
+-- up-right, up-left; down-right, down-left
 local function get_short_distance(enemy_x, player_x, enemy_y, player_y)
 	local minor_x = math.min(
 		enemy_x - player_x,
-		(enemy_x - (player_x + PLAYER.width)),
-		(enemy_x - (player_x - PLAYER.width))
+		(enemy_x - (player_x + PLAYER.width))
 	)
 
 	local minor_y = math.min(
 		enemy_y - player_y,
-		(enemy_y - (player_y + PLAYER.height)),
 		(enemy_y - (player_y - PLAYER.height))
 	)
 
@@ -143,5 +143,23 @@ function love.draw()
 		love.graphics.ellipse('fill', v.x, v.y, ENEMY.size, ENEMY.size)
 	end
 
+	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle('fill', PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height)
+
+	-- only for testing enemy follow movement
+	-- see line 75
+
+	love.graphics.setColor(255, 0, 0)
+	-- canto direito
+	love.graphics.ellipse('fill', PLAYER.x, PLAYER.y, 2, 2)
+
+	-- canto esquerdo
+	love.graphics.ellipse('fill', PLAYER.x + PLAYER.width, PLAYER.y, 2, 2)
+
+	-- canto baixo direito
+	love.graphics.ellipse('fill', PLAYER.x, PLAYER.y + PLAYER.height, 2, 2)
+
+	-- canto baixo esquerdo
+	love.graphics.ellipse('fill', PLAYER.x + PLAYER.width, PLAYER.y + PLAYER.height, 2, 2)
 end
+
