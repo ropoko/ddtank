@@ -69,8 +69,8 @@ local function mov_shot()
 		else
 			local distance = math.sqrt((PLAYER.shoots[i].x - aim_x)^2 + (PLAYER.shoots[i].y - aim_y)^2)
 
-			PLAYER.shoots[i].x = PLAYER.shoots[i].x - (PLAYER.shoots[i].x - aim_x) / distance
-			PLAYER.shoots[i].y = PLAYER.shoots[i].y - (PLAYER.shoots[i].y - aim_y) / distance
+			PLAYER.shoots[i].x = PLAYER.shoots[i].x - (PLAYER.shoots[i].x - aim_x) / distance * 3
+			PLAYER.shoots[i].y = PLAYER.shoots[i].y - (PLAYER.shoots[i].y - aim_y) / distance * 3
 		end
 	end
 end
@@ -171,6 +171,21 @@ function love.update(dt)
 				end
 			end
 		end
+
+		if #PLAYER.shoots ~= 0 and ENEMY.alive > 0 then
+			for k,v in pairs(PLAYER.shoots) do
+				if has_collision(v.x, v.y, v.size, v.size, ENEMY.all[i].x, ENEMY.all[i].y, ENEMY.size, ENEMY.size) then
+					ENEMY.alive = ENEMY.alive - 1
+
+					table.remove(ENEMY.all, i)
+					table.remove(PLAYER.shoots, k)
+
+					if ENEMY.all[i] == nil then
+						break
+					end
+				end
+			end
+		end
 	end
 
 	if love.keyboard.isDown('w', 'a', 's', 'd') then
@@ -210,7 +225,7 @@ function love.draw()
 	love.graphics.setColor(255, 255, 255)
 	-- shoots
 	for k,s in pairs(PLAYER.shoots) do
-		love.graphics.ellipse('fill', s.x, s.y, 6, 6)
+		love.graphics.ellipse('fill', s.x, s.y, s.size, s.size)
 	end
 end
 
