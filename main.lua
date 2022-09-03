@@ -45,6 +45,9 @@ local function dash(direction, signal)
 	end
 end
 
+-- should have a limit - ideas:
+-- - time
+-- - energy
 local function shoot()
 	if love.mouse.isDown(1) then -- left
 		local shot = {
@@ -64,13 +67,17 @@ local function mov_shot()
 		local aim_x = PLAYER.shoots[i].aim_x
 		local aim_y = PLAYER.shoots[i].aim_y
 
-		if (math.floor(PLAYER.shoots[i].x) <= aim_x and math.floor(PLAYER.shoots[i].y) <= aim_y) then
+		local shot_x = PLAYER.shoots[i].x
+		local shot_y = PLAYER.shoots[i].y
+
+		local distance = math.sqrt((shot_x - aim_x)^2 + (shot_y - aim_y)^2)
+
+		-- fix: shots should desappear after some distance or after reached aim coords
+		if math.floor(aim_x) == math.floor(shot_x) and math.floor(aim_y) == math.floor(shot_y) then
 			table.remove(PLAYER.shoots, i)
 		else
-			local distance = math.sqrt((PLAYER.shoots[i].x - aim_x)^2 + (PLAYER.shoots[i].y - aim_y)^2)
-
-			PLAYER.shoots[i].x = PLAYER.shoots[i].x - (PLAYER.shoots[i].x - aim_x) / distance * 3
-			PLAYER.shoots[i].y = PLAYER.shoots[i].y - (PLAYER.shoots[i].y - aim_y) / distance * 3
+			PLAYER.shoots[i].x = shot_x - (shot_x - aim_x) / distance * 3
+			PLAYER.shoots[i].y = shot_y - (shot_y - aim_y) / distance * 3
 		end
 	end
 end
@@ -110,7 +117,8 @@ local function move_player()
 end
 
 -- fix: enemy should be able to follow one of the four boundaries
--- up-right, up-left; down-right, down-left
+-- up-right, up-left; down-right, down-left, based in the shorter distance for them
+-- yeah. I care enemies
 local function get_short_distance(enemy_x, player_x, enemy_y, player_y)
 	local minor_x = math.min(
 		enemy_x - player_x,
