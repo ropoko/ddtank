@@ -46,8 +46,8 @@ local function dash(direction, signal)
 end
 
 -- should have a limit - ideas:
--- - time
--- - energy
+-- # time
+-- # energy
 local function shoot()
 	if love.mouse.isDown(1) then -- left
 		local shot = {
@@ -118,7 +118,6 @@ end
 
 -- fix: enemy should be able to follow one of the four boundaries
 -- up-right, up-left; down-right, down-left, based in the shorter distance for them
--- yeah. I care enemies
 local function get_short_distance(enemy_x, player_x, enemy_y, player_y)
 	local minor_x = math.min(
 		enemy_x - player_x,
@@ -209,10 +208,12 @@ function love.draw()
 		love.graphics.ellipse('fill', v.x, v.y, ENEMY.size, ENEMY.size)
 	end
 
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.rectangle('fill', PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height)
 
 	love.graphics.ellipse('line', AIM.x, AIM.y, AIM.size, AIM.size)
+
+	-- for i = 0, #FRAMES do
+	-- 	love.graphics.draw(RIGHT, FRAMES[i], PLAYER.x, PLAYER.y)
+	-- end
 
 	-- only for testing enemy follow movement
 	-- see line 75
