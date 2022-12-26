@@ -1,4 +1,6 @@
-local all_objs = {}
+local Player = require('player')
+
+local ground = {}
 
 function love.load()
 	love.physics.setMeter(64)
@@ -6,18 +8,21 @@ function love.load()
 	WORLD = love.physics.newWorld(0, 9.81*64, true)
 
 	-- create the ground
-	all_objs.ground = {}
+	ground = {}
 	-- static because we won't interact with it
-	all_objs.ground.body = love.physics.newBody(WORLD, 650/2, 650-50/2, "static")
+	ground.body = love.physics.newBody(WORLD, 600/2, 600-50/2, "static")
 	-- define sizes
-	all_objs.ground.shape = love.physics.newRectangleShape(650, 50)
+	ground.shape = love.physics.newRectangleShape(600, 50)
 	-- attach shape to body
-	all_objs.ground.fixture = love.physics.newFixture(all_objs.ground.body, all_objs.ground.shape)
+	ground.fixture = love.physics.newFixture(ground.body, ground.shape)
 
-	love.window.setMode(650, 650)
+	Player:load()
+
+	love.window.setMode(600, 600)
 end
 
 function love.update(dt)
+	Player:update(dt)
 	WORLD:update(dt)
 end
 
@@ -25,5 +30,7 @@ function love.draw()
 	-- set color for ground
 	love.graphics.setColor(0.28, 0.63, 0.05)
   -- draw a "filled in" polygon using the ground's coordinates
-  love.graphics.polygon("fill", all_objs.ground.body:getWorldPoints(all_objs.ground.shape:getPoints()))
+  love.graphics.polygon("fill", ground.body:getWorldPoints(ground.shape:getPoints()))
+
+	Player:draw()
 end
