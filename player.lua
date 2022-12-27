@@ -13,6 +13,8 @@ function Player:load()
 	self.body = love.physics.newBody(WORLD, self.x, self.y, 'dynamic')
 	self.shape = love.physics.newRectangleShape(self.width, self.height)
 	self.fixture = love.physics.newFixture(self.body, self.shape)
+
+	self.body:setMass(50)
 end
 
 function Player:update(dt)
@@ -28,14 +30,26 @@ function Player:update(dt)
 		x = Player.x + Player.width / 2,
 		y = Player.y + Player.height / 2
 	}
+
+	-- ------------------------------------
+
+	self.x, self.y,_,_ = self.body:getWorldPoints(self.shape:getPoints())
+
+	local force = self.body:getInertia() + self.body:getMass()
+
+	if love.keyboard.isDown('a') then
+		self.body:applyLinearImpulse(-force,0)
+	end
+
+	if love.keyboard.isDown('d') then
+		self.body:applyLinearImpulse(force,0)
+	end
 end
 
 
 function Player:draw()
-	self.x, self.y,_,_ = self.body:getWorldPoints(self.shape:getPoints())
-
 	love.graphics.setColor(1,0,0)
-	-- love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
+	love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
 
 	self:draw_aim()
 end
@@ -45,7 +59,8 @@ local function stencilFunction()
 end
 
 function Player:draw_aim()
-	love.graphics.print(tostring(angle), 10, 10)
+	love.graphics.print(tostring(tonumber(string.format("%.2f", angle))), 10, 10)
+	-- love.graphics.print(tostring(math.rad(90)), 10, 30)
 
 	love.graphics.stencil(stencilFunction, 'replace', 1)
 	love.graphics.setStencilTest('equal', 0)
@@ -60,7 +75,7 @@ function Player:draw_aim()
 	love.graphics.translate(-center_user.x, -center_user.y)
 
 	love.graphics.setColor(1,0,0)
-	love.graphics.line(center_user.x,center_user.y, center_user.x,center_user.y - 20)
+	love.graphics.line(center_user.x,center_user.y, center_user.x,center_user.y - 100)
 	love.graphics.setColor(1,1,1)
 
 	love.graphics.pop()
