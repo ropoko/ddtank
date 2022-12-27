@@ -1,0 +1,55 @@
+local angle = 10
+
+local position = {
+	x = 100,
+	y = 100
+}
+
+local ball = {
+	x = 100,
+	y = 100
+}
+
+function love.update(dt)
+	if love.keyboard.isDown('w') then
+		angle = angle + math.pi * dt * 0.2
+	end
+
+	if love.keyboard.isDown('s') then
+		angle = angle - math.pi * dt * 0.2
+	end
+
+	-- -------------------------------------
+
+	if love.keyboard.isDown('a') then
+		position.x = position.x - 1
+	end
+
+	if love.keyboard.isDown('d') then
+		position.x = position.x + 1
+	end
+
+	-- -------------------------------------
+
+
+end
+
+function love.draw()
+	love.graphics.setColor(1,1,1)
+	love.graphics.print('angle: '..angle, 250, 250)
+	love.graphics.setColor(1,1,1)
+
+	love.graphics.circle('fill', position.x, position.y, 50, 50)
+
+	love.graphics.push()
+
+	love.graphics.translate(position.x, position.y)
+	love.graphics.rotate(angle)
+	love.graphics.translate(-position.x, -position.y)
+
+	love.graphics.setColor(1,0,0)
+	love.graphics.line(position.x, position.y,position.x,position.y/2)
+	love.graphics.setColor(1,1,1)
+
+	love.graphics.pop()
+end
