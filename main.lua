@@ -16,6 +16,9 @@ function love.load()
 	-- attach shape to body
 	ground.fixture = love.physics.newFixture(ground.body, ground.shape)
 
+	local fixture = love.physics.newFixture(ground.body, ground.shape)
+	fixture:setFriction(1)
+
 	Player:load()
 
 	love.window.setMode(600, 600)

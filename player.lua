@@ -2,7 +2,8 @@ local Player = {
 	x = 150,
 	y = 150,
 	width = 50,
-	height = 50
+	height = 50,
+	-- can_move = false
 }
 
 local center_user = {}
@@ -33,17 +34,26 @@ function Player:update(dt)
 
 	-- ------------------------------------
 
+	-- if self.can_move == false then
+	-- 	local _,y = self.body:getLinearVelocity()
+	-- 	self.body:setLinearVelocity(0.5,y)
+	-- end
+
 	self.x, self.y,_,_ = self.body:getWorldPoints(self.shape:getPoints())
 
 	local force = self.body:getInertia() + self.body:getMass()
 
 	if love.keyboard.isDown('a') then
 		self.body:applyLinearImpulse(-force,0)
+		-- self.can_move = true
 	end
 
 	if love.keyboard.isDown('d') then
 		self.body:applyLinearImpulse(force,0)
+		-- self.can_move = true
 	end
+
+	-- self.can_move = false
 end
 
 
