@@ -3,28 +3,29 @@ local Player = {
 	y = 150,
 	width = 50,
 	height = 50,
-	-- can_move = false
+	speed_aim = 0.2,
+	angle = 0,
+	mass = 50,
+	side = 'right' -- left | right
 }
 
 local center_user = {}
-
-local angle = 0
 
 function Player:load()
 	self.body = love.physics.newBody(WORLD, self.x, self.y, 'dynamic')
 	self.shape = love.physics.newRectangleShape(self.width, self.height)
 	self.fixture = love.physics.newFixture(self.body, self.shape)
 
-	self.body:setMass(50)
+	self.body:setMass(self.mass)
 end
 
 function Player:update(dt)
 	if love.keyboard.isDown('w') then
-		angle = angle + math.pi * dt * 0.2
+		self.angle = self.angle + math.pi * dt * self.speed_aim
 	end
 
 	if love.keyboard.isDown('s') then
-		angle = angle - math.pi * dt * 0.2
+		self.angle = self.angle - math.pi * dt * self.speed_aim
 	end
 
 	center_user = {
@@ -34,26 +35,17 @@ function Player:update(dt)
 
 	-- ------------------------------------
 
-	-- if self.can_move == false then
-	-- 	local _,y = self.body:getLinearVelocity()
-	-- 	self.body:setLinearVelocity(0.5,y)
-	-- end
-
 	self.x, self.y,_,_ = self.body:getWorldPoints(self.shape:getPoints())
 
 	local force = self.body:getInertia() + self.body:getMass()
 
 	if love.keyboard.isDown('a') then
-		self.body:applyLinearImpulse(-force,0)
-		-- self.can_move = true
+		self.body:applyLinearImpulse(-force, 0)
 	end
 
 	if love.keyboard.isDown('d') then
-		self.body:applyLinearImpulse(force,0)
-		-- self.can_move = true
+		self.body:applyLinearImpulse(force, 0)
 	end
-
-	-- self.can_move = false
 end
 
 
@@ -69,9 +61,6 @@ local function stencilFunction()
 end
 
 function Player:draw_aim()
-	love.graphics.print(tostring(tonumber(string.format("%.2f", angle))), 10, 10)
-	-- love.graphics.print(tostring(math.rad(90)), 10, 30)
-
 	love.graphics.stencil(stencilFunction, 'replace', 1)
 	love.graphics.setStencilTest('equal', 0)
 	love.graphics.setColor(228/255,228/255,228/255, 0.5)
@@ -81,7 +70,7 @@ function Player:draw_aim()
 	love.graphics.push()
 
 	love.graphics.translate(center_user.x, center_user.y)
-	love.graphics.rotate(angle)
+	love.graphics.rotate(self.angle)
 	love.graphics.translate(-center_user.x, -center_user.y)
 
 	love.graphics.setColor(1,0,0)
@@ -89,6 +78,12 @@ function Player:draw_aim()
 	love.graphics.setColor(1,1,1)
 
 	love.graphics.pop()
+
+	love.graphics.print('Angle: '.. math.deg(self.angle)..'°', 10, 10)
+end
+
+function Player:set_degree_aim(deg)
+	self.angle = math.rad(deg)
 end
 
 return Player
