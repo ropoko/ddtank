@@ -4,9 +4,10 @@ local Player = {
 	width = 50,
 	height = 50,
 	speed_aim = 0.2,
-	angle = 0,
+	angle = 0, -- radians
+	angle_show = 0, -- converted to degrees
 	mass = 50,
-	side = 'right' -- left | right
+	side = 'left' -- left | right
 }
 
 local center_user = {}
@@ -41,11 +42,15 @@ function Player:update(dt)
 
 	if love.keyboard.isDown('a') then
 		self.body:applyLinearImpulse(-force, 0)
+		self:change_side('left')
 	end
 
 	if love.keyboard.isDown('d') then
 		self.body:applyLinearImpulse(force, 0)
+		self:change_side('right')
 	end
+
+	self.angle_show = self.angle
 end
 
 
@@ -79,11 +84,26 @@ function Player:draw_aim()
 
 	love.graphics.pop()
 
-	love.graphics.print('Angle: '.. math.deg(self.angle)..'°', 10, 10)
+	if self.side == 'right' then
+		love.graphics.print('Angle: '.. math.deg(self.angle_show)..'°', 10, 10)
+	else
+		love.graphics.print('Angle: '.. math.deg(self.angle_show * -1)..'°', 10, 10)
+	end
+
 end
 
 function Player:set_degree_aim(deg)
 	self.angle = math.rad(deg)
+end
+
+function Player:change_side(side)
+	if side ~= 'left' and side ~= 'right' then
+		error('side not valid')
+	end
+
+	if self.side ~= side then
+		self.side = side
+	end
 end
 
 return Player
