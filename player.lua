@@ -3,12 +3,20 @@ local Player = {
 	y = 150,
 	width = 50,
 	height = 50,
-	speed_aim = 0.2,
-	angle = 0, -- radians
-	angle_show = 0, -- converted to degrees
 	mass = 50,
-	side = 'left' -- left | right
+	side = 'left', -- left | right
+
+	aim = {
+		radius = 100,
+		speed = 0.2,
+		angle = 0, -- radians
+		angle_show = 0, -- converted to degrees
+	},
+
+	shoot = {}
 }
+
+local is_shoot_created = false
 
 local center_user = {}
 
@@ -21,12 +29,18 @@ function Player:load()
 end
 
 function Player:update(dt)
+	local round_angle = tonumber(string.format("%.0f", math.deg(self.aim.angle_show)))
+	if round_angle == 360 or round_angle == -360 then
+		self.aim.angle = 0
+	end
+
+
 	if love.keyboard.isDown('w') then
-		self.angle = self.angle + math.pi * dt * self.speed_aim
+		self.aim.angle = self.aim.angle + math.pi * dt * self.aim.speed
 	end
 
 	if love.keyboard.isDown('s') then
-		self.angle = self.angle - math.pi * dt * self.speed_aim
+		self.aim.angle = self.aim.angle - math.pi * dt * self.aim.speed
 	end
 
 	center_user = {
@@ -50,7 +64,12 @@ function Player:update(dt)
 		self:change_side('right')
 	end
 
-	self.angle_show = self.angle
+	self.aim.angle_show = self.aim.angle
+
+	if is_shoot_created and not self.shoot.body:isAwake() then
+		self.shoot.body:destroy()
+		is_shoot_created = false
+	end
 end
 
 
@@ -59,37 +78,42 @@ function Player:draw()
 	love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
 
 	self:draw_aim()
+
+	if is_shoot_created then
+		love.graphics.setColor(0,1,0)
+		love.graphics.polygon('fill', self.shoot.body:getWorldPoints(self.shoot.shape:getPoints()))
+	end
 end
 
 local function stencilFunction()
-	love.graphics.circle('fill', center_user.x, center_user.y, 50)
+	love.graphics.circle('fill', center_user.x, center_user.y, Player.aim.radius/2)
 end
 
 function Player:draw_aim()
 	love.graphics.stencil(stencilFunction, 'replace', 1)
 	love.graphics.setStencilTest('equal', 0)
 	love.graphics.setColor(228/255,228/255,228/255, 0.5)
-	love.graphics.circle('fill', center_user.x, center_user.y, 100)
+	love.graphics.circle('fill', center_user.x, center_user.y, self.aim.radius)
 	love.graphics.setStencilTest()
 
-	love.graphics.push()
-
-	love.graphics.translate(center_user.x, center_user.y)
-	love.graphics.rotate(self.angle)
-	love.graphics.translate(-center_user.x, -center_user.y)
+	local x_angle = center_user.x + math.cos(self.aim.angle) * self.aim.radius
+	local y_angle = center_user.y + math.sin(self.aim.angle) * self.aim.radius
 
 	love.graphics.setColor(1,0,0)
-	love.graphics.line(center_user.x,center_user.y, center_user.x,center_user.y - 100)
+	love.graphics.line(center_user.x,center_user.y, x_angle, y_angle)
 	love.graphics.setColor(1,1,1)
 
-	love.graphics.pop()
-
-	if self.side == 'right' then
-		love.graphics.print('Angle: '.. math.deg(self.angle_show)..'°', 10, 10)
-	else
-		love.graphics.print('Angle: '.. math.deg(self.angle_show * -1)..'°', 10, 10)
+	if love.keyboard.isDown('space') and not is_shoot_created then
+		self:to_shoot(x_angle,y_angle)
 	end
 
+	if self.side == 'right' then
+		love.graphics.print('Angle: '.. math.deg(self.aim.angle_show)..'°', 10, 10)
+	else
+		love.graphics.print('Angle: '.. math.deg(self.aim.angle_show * -1)..'°', 10, 10)
+	end
+
+	love.graphics.setColor(0,1,0)
 end
 
 function Player:set_degree_aim(deg)
@@ -104,6 +128,31 @@ function Player:change_side(side)
 	if self.side ~= side then
 		self.side = side
 	end
+end
+
+function Player:to_shoot(x,y)
+	self:create_shoot(x,y)
+
+	local force = 1000
+
+	-- TODO: I don't think it's right
+	if center_user.x > x then
+		force = force * -1
+	end
+
+	self.shoot.body:applyLinearImpulse(force,-10000,x,y)
+end
+
+function Player:create_shoot(x,y)
+	self.shoot = {}
+
+	self.shoot.body = love.physics.newBody(WORLD, x, y, 'dynamic')
+	self.shoot.shape = love.physics.newRectangleShape(20, 20)
+	self.shoot.fixture = love.physics.newFixture(self.shoot.body, self.shoot.shape)
+
+	self.shoot.body:setMass(20)
+
+	is_shoot_created = true
 end
 
 return Player
